@@ -1,0 +1,1 @@
+GRANT ALL ON `test-project_test`.* TO dc_user@'%';
