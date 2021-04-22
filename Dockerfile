@@ -10,9 +10,19 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
   apt-get install -y --no-install-recommends \
   build-essential \
   nodejs \
-  yarn && \
+  yarn \
+  wget && \
   apt-get clean && \
   rm --recursive --force /var/lib/apt/lists/*
+
+## ENTRYKITでbundle installなど自動化
+ENV ENTRYKIT_VERSION 0.4.0
+RUN wget https://github.com/progrium/entrykit/releases/download/v${ENTRYKIT_VERSION}/entrykit_${ENTRYKIT_VERSION}_Linux_x86_64.tgz \
+  && tar -xvzf entrykit_${ENTRYKIT_VERSION}_Linux_x86_64.tgz \
+  && rm entrykit_${ENTRYKIT_VERSION}_Linux_x86_64.tgz \
+  && mv entrykit /bin/entrykit \
+  && chmod +x /bin/entrykit \
+  && entrykit --symlink
 
 #作業ディレクトリを指定している mkdirは不要
 ENV APP_PATH=/project
@@ -22,3 +32,7 @@ COPY ./Gemfile $APP_PATH/Gemfile
 COPY ./Gemfile.lock $APP_PATH/Gemfile.lock
 
 RUN bundle install
+
+# ENTRYPOINT ["prehook", "bundle install", "--"]
+
+# CMD ["rails", "server", "-b", "0.0.0.0"]
